@@ -61,11 +61,14 @@ def delete_post(request, pk=None):
     post.delete()
     return redirect('/forum')
 
-@login_required
 def delete_reply(request, pk=None):
-    post = Replie.objects.filter(id=pk)
-    post.delete()
-    return redirect('/forum')    
+    reply = Replie.objects.filter(id=pk)
+    reply_instance = get_object_or_404(Replie,id=pk)
+    post_pk=reply_instance.post.id
+    reply.delete()
+    return redirect(reverse('dashboard:discussion', args=[post_pk])) 
+
+  
 
 @login_required
 def user_home(request):
@@ -76,10 +79,6 @@ def delete_user(request,pk=None):
         User.objects.get(id=pk).delete()
         return redirect("/showallusers")
 
-
-
-
-#register and login complted===========================
 @login_required
 def forum(request):
     user = request.user
@@ -107,42 +106,36 @@ def forum(request):
 
 
 def edit_post(request, pk):
-  
-    note = Post.objects.get(id=pk)
+
+    post = Post.objects.get(id=pk)
     if request.method == 'POST':
-        form = UpdatePostForm(request.POST, instance=note)
+        form = UpdatePostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            messages.success(request,"Post updated successfully!")
-            return redirect('/forum')
+            messages.success(request, "Post updated successfully!")
+            return redirect(reverse('dashboard:discussion', args=[post.id]))
     else:
-        form = UpdatePostForm(instance=note)
+        form = UpdatePostForm(instance=post)
     context = {
         'form': form
     }
     return render(request, 'edit_post.html', context)
 
 def edit_reply(request, pk):
-  
     reply = Replie.objects.get(id=pk)
-    post_id =Replie.objects.get('post_id','')
-    
+
     if request.method == 'POST':
         form = UpdateReplyForm(request.POST, instance=reply)
         if form.is_valid():
-            
-            print(post_id)
             form.save()
-            messages.success(request,"Reply updated successfully!")
-            return redirect('/forum')
+            messages.success(request, "Reply updated successfully!")
+            return redirect(reverse('dashboard:discussion', args=[reply.post.id]))
     else:
         form = UpdateReplyForm(instance=reply)
     context = {
         'form': form
     }
     return render(request, 'edit_reply.html', context)
-
-
 @login_required(login_url = 'login')   
 def discussion(request, myid):
     post = Post.objects.filter(id=myid).first()

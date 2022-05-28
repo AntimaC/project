@@ -23,6 +23,7 @@ from django.http import HttpResponse, JsonResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.db.models import Q
+from django.urls import reverse
 from django.db.models import Count
 # Create your views here.
 def index(request):

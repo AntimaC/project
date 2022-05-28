@@ -136,7 +136,8 @@ def edit_reply(request, pk):
         'form': form
     }
     return render(request, 'edit_reply.html', context)
-@login_required(login_url = 'login')   
+
+@login_required   
 def discussion(request, myid):
     post = Post.objects.filter(id=myid).first()
     replies = Replie.objects.filter(post=post)

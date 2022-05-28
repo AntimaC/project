@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %} Register {% endblock %}
+{% block registeractive %} active {% endblock registeractive %}
+{% load static %}
+{% block body %} 
+<br>
+ 
+<div id="login-box">
+    <div class="items">
+      <h1>User Register</h1>
+        <form action="register" method="post"> {% csrf_token %}
+         {%if error%}
+        <div class="alert alert-danger "  role="alert" style="padding: 0;color: red;text-align: center;">
+          <small class="manual-alter">{{error}}</small>
+       </div>
+       {%endif%}
+      <input type="text" class="inputcss" name="username" placeholder="Username" value="{{values.username}}" required />
+      <input type="email" class="inputcss" name="email" placeholder="E-mail" value="{{values.email}}" required/>
+      <input type="text" class="inputcss" name="first_name" placeholder="First Name" value="{{values.firstname}}" required />
+      <input type="text" class="inputcss"  name="last_name" placeholder="Last Name" value="{{values.lastname}}" required />
+      <input type="password" class="inputcss" name="password" placeholder="Password"required />
+      <input type="password" class="inputcss" name="confirm_password" placeholder="Confirm your password" required/>
+      
+      <input type="submit"  class="rlbtn" name="signup_submit" value="Register" />
+    </div>   
+  </div>
+ <br>
+  {% endblock body %}
+

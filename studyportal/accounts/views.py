@@ -80,12 +80,13 @@ def register(request):
         last_name=request.POST['last_name']
         password = request.POST['password']
         confirm_password = request.POST['confirm_password']
+        branch = request.POST['branch']
         Value = {
                'username':username,
                 'firstname':first_name,
                 'lastname':last_name,
                 'email':email,
-                
+                'branch':branch
             }
        
         regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]') 
@@ -114,6 +115,7 @@ def register(request):
             error_mess = "Please check Your typed email, dot is required after  @"
         if not error_mess:
          user = User.objects.create_user(username, email, password)
+         Register.objects.create(user=user,branch=branch)
          user.first_name = first_name
          user.last_name = last_name
          user.save()

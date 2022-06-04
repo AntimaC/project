@@ -23,6 +23,7 @@ class Post(models.Model):
     post_id = models.AutoField
     post_content = models.TextField(max_length=5000,verbose_name="")
     timestamp= models.DateTimeField(default=now)
+    branch=models.CharField(default='',max_length=200)
     image = models.ImageField(upload_to="images",default="")
     def __str__(self):
        return f'{self.user1} Post'

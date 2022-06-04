@@ -83,28 +83,31 @@ def delete_user(request,pk=None):
 @login_required
 def forum(request):
     user = request.user
- 
     profile = Profile.objects.all()
+    user = User.objects.get(id=request.user.id)
+    data = Register.objects.get(user = user)
+    user_posts = Post.objects.filter(branch=data.branch).count()
     if request.method=="POST": 
-        form=PostContent(request.POST)
-        if form.is_valid():  
+      
           user = request.user
           image = request.user.profile.image
-          content = request.POST.get('post_content','')
-          post = Post(user1=user, post_content=content, image=image)
+          content = request.POST.get('content','')
+          branch = request.POST.get('branch','')
+          title = request.POST.get('title','')
+          post = Post(user1=user, post_content=content, image=image,branch=branch,title=title)
           post.save()
           messages.success(request, f'Your Question has been posted successfully!!')
           return redirect('/forum')
-        else:
-            form=PostContent()  
-    posts = Post.objects.filter().order_by('-timestamp')
-    form= PostContent()
+      
+    posts = Post.objects.filter(branch=data.branch).order_by('-timestamp')
+  
+    print(data.branch)
     context={
         'posts':posts,
-        'form':form
+        'branch':data.branch,
+        'user_posts':user_posts
     }
     return render(request, "forum.html",context)
-
 
 def edit_post(request, pk):
 
@@ -184,7 +187,6 @@ def view_mynotes(request):
         return redirect('login')
     user = User.objects.get(id=request.user.id)
     notes = Upload_Notes.objects.filter(user = user)
-
     context = {'notes':notes}
     return render(request,'user/view_mynotes.html',context)
 
@@ -254,17 +256,19 @@ def delete_notes(request,pk=None):
 #         return JsonResponse({'msg': 'Notes deleted successfully !'})
 
 def view_allnotes(request):
-    if not request.user.is_authenticated:
+     if not request.user.is_authenticated:
         return redirect('login')
-    notes = Upload_Notes.objects.filter(status='Accept')
+    user = User.objects.get(id=request.user.id)
+    data = Register.objects.get(user = user) 
+    notes = Upload_Notes.objects.filter(status='Accept',branch=data.branch)
     context = {'notes':notes}
     return render(request, 'user/view_allnotes.html',context)    
 
-
 def notessharing(request):
-    user = User.objects.get(id=request.user.id)
+user = User.objects.get(id=request.user.id)
+    data = Register.objects.get(user = user)
     mynotes = Upload_Notes.objects.filter(user = user).count()
-    allnotes = Upload_Notes.objects.filter(status='Accept').count()
+    allnotes = Upload_Notes.objects.filter(status='Accept',branch=data.branch).count()
     context={
         'mynotes':mynotes,
         'allnotes':allnotes

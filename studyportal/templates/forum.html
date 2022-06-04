@@ -69,6 +69,11 @@
             .f{
               font-weight:900;
              }
+             .bluebtn{
+            background-color:#1a8cff;
+            
+         }
+         hr{border: 1px solid rgb(55, 13, 206);}
 </style>   
 
 {% else %}
@@ -81,12 +86,32 @@
 {% block body %}
 <div class="container my-4 ">
 <div class="jumbotron"style="margin-bottom: 5%;    text-align: center;">
-    <h1 class="display-4 font"> Disscussion Forum</h1>
-    <center class="lead post">Welcome to our discussion forum. You can post your question or any related queries by simply clicking on the add post button.</>
-    <hr class="my-4">
+  {% if user.is_superuser or user.is_staff %}
+    <h3 class="display-4 font"> Disscussion Forum</h3>
+    <center class="lead post">Welcome to our discussion forum. You can post your question or any related queries by simply clicking on the add post button.</center>
+    <hr class="my-4 hr1">
     <p class="post">You can also reply to others post by clicking on add or see reply button.</p>
-      <button class="btn btn-primary btn-lg text" data-target="#questions" data-toggle="modal" role="button">Add Post</button>
+    {% else %}
+    <h1 class="font mt-0"> {{branch}}   Disscussion Forum</h1>
+    <center >Welcome to  discussion forum. You can post your question or any related queries by simply clicking on the add post button.</center>
+      <p>You can also reply to others post by clicking on add or see reply button.</p>
+      <hr class="my-4 h">
+   <small>keep all posts on the topic. 
+Any posts deemed to be in the wrong category will be removed.</small><br>
+    {% endif %}
+      <button class="btn btn-primary btn-lg text bluebtn" data-target="#questions" data-toggle="modal" role="button">Add Post</button>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
     </div>
+    {% if user_posts == 0 %}
+    <div class="jumbotron">
+  <h4 class="display-4">No Results fountd</h4>
+  <p class="lead">Be the first person to ask question</p>
+  
+</div>
+    {% endif %}
     {% for post in posts %}
     <div class="container-fluid mt-10">
       <div class="row">
@@ -95,19 +120,21 @@
                   <div class="card-header forumcardheader">
                       <div class="media flex-wrap w-100 align-items-center imgcss"> <img src="/media/{{post.image}}" 
                               class="d-block ui-w-40 rounded-circle" alt="profileimage"style="width: 40px;height: 40px;">  <p class="ml-4 usernamecss">  {{post.user1}} </p>
-                          <div class="media-body ml-3"> <a href="/discussion/{{post.id}}" data-abc="true"><button class="btn btn-light text" style="color:blue; font-size: 13px;">Add or See reply </button>  </a>
+                           <div class="media-body ml-3"> {% comment %}<a href="/discussion/{{post.id}}" data-abc="true"><button class="btn btn-light text" style="color:blue; font-size: 13px;">Add or See reply </button>  </a> {% endcomment %}
                           </div>
                           <div class="text-muted small ml-3">
                             <div class="px-4 pt-3 f" >  {{post.timestamp}} </div>
                            
                           </div>
                            {% if user.is_superuser or user.is_staff %}
-                            <a href="{% url 'dashboard:delete_post' post.id %}"> <button class="btn btn-danger btn-sm text" onclick="window.mytest()">Delete</button></a>
+                            <a href="{% url 'dashboard:delete_post' post.id %}"> <button class="btn btn-danger btn-sm text" onclick="window.mytest()"style="background-color: #e60000;">Delete</button></a>
                             <script type="text/javascript">window.mytest = function() { var isValid = confirm('If you click ok then its delete this post and related reply on it. Are you sure to delete?');if (!isValid) { event.preventDefault();  alert("It wont delete. Yay!");}}</script>
                             {% endif %}
-                         </div>
+                        
+                          </div>
                        </div>         
                    <div class="card-body forumcardbody">
+                     
                      
                       <p class="text">{{ post.post_content|linebreaks|truncatewords_html:10 }}</p>{% if post.post_content|length|get_digit:"-1" > 50 %} 
                      
@@ -115,6 +142,8 @@
                  {% endif %}
                 </div>
                   <div class="card-footer d-flex flex-wrap justify-content-between align-items-center px-0 pt-0 pb-3">
+                    <a href="/discussion/{{post.id}}" data-abc="true"><button class="btn btn-light text" style="color:blue; font-size: 13px;">Add or See reply </button>  </a> 
+
                      {% if post.user1 == request.user %}
                         <a href="{% url "dashboard:edit_post" pk=post.id %}" data-abc="true"><button class="btn btn-light text" style="color:blue; font-size: 13px;">Edit</button>  </a>
                         {% endif %}
@@ -152,9 +181,13 @@
           <form action="/forum" method="POST"> {% csrf_token %}
           <div class="form-group">
           <label style="font-size:1rem; font-weight:bold;">Post Your Question Here</label>
-              
-             
-          {{form|crispy}}
+
+        <input type="hidden" name="branch" class="form-control" value="{{branch}}" >
+                  <br><label class="fontcss">Title</label>
+        <input type="text" name="title" class="form-control"  >
+          <label class="fontcss">Description</label>
+        <textarea class="form-control" id="content" name="content" rows="3"></textarea>
+          {% comment %} {{form|crispy}} {% endcomment %}
           
           </div>
         </div>
